@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NoticiasService } from 'src/app/services/noticias.service';
+import { Artigo } from 'src/app/interfaces/interfaces';
 
 @Component({
   selector: 'app-tab1',
@@ -8,11 +9,14 @@ import { NoticiasService } from 'src/app/services/noticias.service';
 })
 export class Tab1Page implements OnInit {
 
+  noticias: Artigo[] = [];
+
   constructor( private noticiasService: NoticiasService) {}
 
   ngOnInit() {
     this.noticiasService.getTopHeadlines().subscribe(resp => {
       console.log('notícias ', resp);
+      this.noticias.push( ...resp.articles );
     });
   }
 }
