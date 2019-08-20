@@ -8,7 +8,9 @@ import { Artigo } from '../interfaces/interfaces';
 export class DataLocalService {
   noticias: Artigo[] = [];
 
-  constructor( private storage: Storage ) { }
+  constructor( private storage: Storage ) { 
+    this.carregarFavoritos();
+  }
 
   salvarNoticia(noticia: Artigo) {
     const existe = this.noticias.find(noti => noti.title === noticia.title);
@@ -19,7 +21,11 @@ export class DataLocalService {
     }
   }
 
-  carregarFavoritos() {
+  async carregarFavoritos() {
+    const favoritos = await this.storage.get('favoritos');
 
+    if (favoritos) {
+      this.noticias = favoritos;
+    }
   }
 }
