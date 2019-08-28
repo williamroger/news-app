@@ -3,7 +3,7 @@ import { Artigo } from 'src/app/interfaces/interfaces';
 
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { SocialSharing } from '@ionic-native/social-sharing/ngx';
-import { ActionSheetController } from '@ionic/angular';
+import { ActionSheetController, Platform } from '@ionic/angular';
 import { DataLocalService } from 'src/app/services/data-local.service';
 
 @Component({
@@ -19,7 +19,8 @@ export class NoticiaComponent implements OnInit {
   constructor( private iab: InAppBrowser,
                private actionSheetCtrl: ActionSheetController,
                private socialSharing: SocialSharing,
-               private datalocalService: DataLocalService ) { }
+               private datalocalService: DataLocalService,
+               private platform: Platform ) { }
 
   ngOnInit() {
     console.log('favoritos ', this.emFavoritos);
@@ -63,12 +64,8 @@ export class NoticiaComponent implements OnInit {
         cssClass: 'action-dark',
         handler: () => {
           console.log('Compartilhando...');
-          this.socialSharing.share(
-            this.noticia.title,
-            this.noticia.source.name,
-            '',
-            this.noticia.url
-          );
+
+          this.compartilharNoticia();
         }
       },
       salvarDeletarBtn,
@@ -83,5 +80,30 @@ export class NoticiaComponent implements OnInit {
       }]
     });
     await actionSheet.present();
+  }
+
+  compartilharNoticia() {
+    if (this.platform.is('cordova')) {
+      this.socialSharing.share(
+        this.noticia.title,
+        this.noticia.source.name,
+        '',
+        this.noticia.url
+      );
+    } else {
+      // tslint:disable-next-line: no-string-literal
+      if (navigator['share']) {
+        // tslint:disable-next-line: no-string-literal
+        navigator['share']({
+          title: this.noticia.title,
+          text: this.noticia.description,
+          url: this.noticia.url,
+        })
+          .then(() => console.log('Compartilhando...'))
+          .catch((error) => console.log('Erro ao compartilhar!', error));
+      } else {
+        console.log('Não é possível compartilhar');
+      }
+    }
   }
 }
